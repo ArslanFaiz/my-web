@@ -65,11 +65,12 @@ export default function BlogDetail() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="max-w-4xl mx-auto my-20 px-6 py-16 bg-gradient-to-b from-indigo-50 to-white rounded-3xl shadow-2xl border border-gray-200"
-    >
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  className="max-w-5xl mx-auto my-20 px-6 py-16 from-indigo-50 to-white "
+>
+
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}

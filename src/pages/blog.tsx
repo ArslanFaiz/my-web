@@ -195,25 +195,44 @@ export default function Blog() {
               </div>
 
               {/* Pagination Controls */}
-              <div className="flex justify-center mt-12 gap-4">
-                <button
-                  onClick={goToPrevPage}
-                  disabled={currentPage === 1}
-                  className="bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-50 disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <span className="text-white font-semibold px-4 py-2">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={goToNextPage}
-                  disabled={currentPage === totalPages}
-                  className="bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-50 disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
+              {/* Pagination Controls */}
+<div className="flex items-center justify-center mt-12 gap-6">
+  {/* Previous Button */}
+  <button
+    onClick={goToPrevPage}
+    disabled={currentPage === 1}
+    className="w-12 h-12 flex items-center justify-center rounded-full bg-white text-gray-800 shadow-md hover:bg-gray-100 disabled:opacity-50 transition-all duration-300"
+  >
+    <span className="text-xl font-bold">&lt;</span>
+  </button>
+
+  {/* Page Numbers */}
+  <div className="flex items-center gap-3">
+    {Array.from({ length: totalPages }, (_, i) => (
+      <button
+        key={i + 1}
+        onClick={() => setCurrentPage(i + 1)}
+        className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
+          currentPage === i + 1
+            ? "bg-blue-600 text-white shadow-lg"
+            : "bg-white text-gray-800 hover:bg-gray-100"
+        }`}
+      >
+        {i + 1}
+      </button>
+    ))}
+  </div>
+
+  {/* Next Button */}
+  <button
+    onClick={goToNextPage}
+    disabled={currentPage === totalPages}
+    className="w-12 h-12 flex items-center justify-center rounded-full bg-white text-gray-800 shadow-md hover:bg-gray-100 disabled:opacity-50 transition-all duration-300"
+  >
+    <span className="text-xl font-bold">&gt;</span>
+  </button>
+</div>
+
             </>
           )}
         </div>
