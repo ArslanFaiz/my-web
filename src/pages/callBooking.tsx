@@ -7,6 +7,7 @@ import toast, { Toaster } from "react-hot-toast"
 
 export default function CallBooking() {
   const [selectedDate, setSelectedDate] = useState<string>("")
+  const [selectedTime, setSelectedTime] = useState<string>("")
   const [name, setName] = useState<string>("")
   const [phone, setPhone] = useState<string>("")
   const [email, setEmail] = useState<string>("")
@@ -15,61 +16,61 @@ export default function CallBooking() {
   const [loading, setLoading] = useState(false)
 
   const handleBooking = async () => {
-  if (!name || !phone || !email || !selectedDate) return;
+    if (!name || !phone || !email || !selectedDate || !selectedTime) return;
 
-  // ✅ Past date check
-  const today = new Date().toISOString().slice(0, 10);
-  if (selectedDate < today) {
-    toast.error("Booking date cannot be in the past!");
-    return;
-  }
-
-  const bookingData = {
-    name,
-    phone,
-    email,
-    date: `${selectedDate}T23:59:59.999Z`,
-    message,
-  };
-
-  setLoading(true);
-  try {
-    const response = await fetch(
-      "https://technacallcanadabackend-production.up.railway.app/api/bookings",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      }
-    );
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      toast.success("Booking created successfully!");
-      // Reset form
-      setBookingStep(1);
-      setSelectedDate("");
-      setName("");
-      setPhone("");
-      setEmail("");
-      setMessage("");
-    } else {
-      toast.error(data.message || "Something went wrong!");
+    // ✅ Past date check
+    const today = new Date().toISOString().slice(0, 10);
+    if (selectedDate < today) {
+      toast.error("Booking date cannot be in the past!");
+      return;
     }
-  } catch (error) {
-    toast.error("Network error! Please try again.");
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
 
+    const bookingData = {
+      name,
+      phone,
+      email,
+      date: `${selectedDate}T${selectedTime}:00.000Z`,
+      message,
+    };
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        "https://technacallcanadabackend-production.up.railway.app/api/bookings",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bookingData),
+        }
+      );
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success("Booking created successfully!");
+        // Reset form
+        setBookingStep(1);
+        setSelectedDate("");
+        setSelectedTime("");
+        setName("");
+        setPhone("");
+        setEmail("");
+        setMessage("");
+      } else {
+        toast.error(data.message || "Something went wrong!");
+      }
+    } catch (error) {
+      toast.error("Network error! Please try again.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="w-full min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <Toaster position="top-right" /> {/* Toast container */}
+      <Toaster position="top-right" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-8">
           <button
@@ -87,7 +88,7 @@ export default function CallBooking() {
             <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-2xl p-8 space-y-8">
               {/* Step Indicator */}
               <div className="flex items-center justify-between mb-8">
-                {[1, 2].map((step) => (
+                {[1, 2, 3].map((step) => (
                   <div key={step} className="flex items-center">
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
@@ -96,7 +97,7 @@ export default function CallBooking() {
                     >
                       {step}
                     </div>
-                    {step < 2 && (
+                    {step < 3 && (
                       <div
                         className={`w-12 h-1 mx-2 transition-all ${
                           step < bookingStep ? "bg-blue-600" : "bg-slate-700"
@@ -163,6 +164,25 @@ export default function CallBooking() {
                 </div>
               )}
 
+              {/* Step 3: Select Time */}
+              {bookingStep >= 3 && (
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold text-white">Step 3: Choose Time</h2>
+                  <input
+                    type="time"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                  {selectedTime && (
+                    <p className="text-sm text-green-400 flex items-center space-x-2">
+                      <span>✓</span>
+                      <span>Time selected: {selectedTime}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex gap-4 pt-8 border-t border-slate-700">
                 {bookingStep > 1 && (
@@ -170,19 +190,22 @@ export default function CallBooking() {
                     Back
                   </Button>
                 )}
-                {bookingStep < 2 && (
+                {bookingStep < 3 && (
                   <Button
                     onClick={() => setBookingStep(bookingStep + 1)}
-                    disabled={bookingStep === 1 && (!name || !phone || !email)}
+                    disabled={
+                      (bookingStep === 1 && (!name || !phone || !email)) ||
+                      (bookingStep === 2 && !selectedDate)
+                    }
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
                     Next
                   </Button>
                 )}
-                {bookingStep === 2 && (
+                {bookingStep === 3 && (
                   <Button
                     onClick={handleBooking}
-                    disabled={!selectedDate || loading}
+                    disabled={!selectedTime || loading}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                   >
                     {loading ? "Booking..." : "Confirm Booking"}
@@ -216,6 +239,11 @@ export default function CallBooking() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                   <p className="text-sm text-blue-100 mb-1">Date</p>
                   <p className="text-lg font-semibold">{selectedDate || "Not selected"}</p>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <p className="text-sm text-blue-100 mb-1">Time</p>
+                  <p className="text-lg font-semibold">{selectedTime || "Not selected"}</p>
                 </div>
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">

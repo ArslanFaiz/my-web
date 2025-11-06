@@ -41,13 +41,16 @@ export default function Contact() {
       )
 
       if (response.data.success) {
-        setSuccess(true)
-        setFormData({ name: "", email: "", phone: "", message: "" })
-        toast.success("Message sent successfully!")
-      } else {
-        console.error("Submission error:", response.data.message)
-        toast.error("Failed to send message.")
-      }
+  setSuccess(true)
+  setFormData({ name: "", email: "", phone: "", message: "" })
+  
+  // Show professional "Thank you" toast for 2 seconds
+  toast.success("Thank you! Your message has been received.", { duration: 2000 })
+} else {
+  console.error("Submission error:", response.data.message)
+  toast.error("Failed to send message.")
+}
+
     } catch (error) {
       console.error("Submission failed:", error)
       toast.error("Failed to send message.")
