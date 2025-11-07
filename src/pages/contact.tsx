@@ -43,9 +43,6 @@ export default function Contact() {
       if (response.data.success) {
   setSuccess(true)
   setFormData({ name: "", email: "", phone: "", message: "" })
-  
-  // Show professional "Thank you" toast for 2 seconds
-  toast.success("Thank you! Your message has been received.", { duration: 2000 })
 } else {
   console.error("Submission error:", response.data.message)
   toast.error("Failed to send message.")
@@ -63,6 +60,33 @@ export default function Contact() {
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
       {/* Toast Container */}
       <Toaster position="top-center" />
+      {/* ✅ POPUP - THANK YOU */}
+      {success && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[2000]">
+          <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center animate-fadeIn">
+
+            <div className="w-20 h-20 bg-green-500 rounded-full mx-auto flex items-center justify-center mb-6">
+              <CheckCircle className="w-12 h-12 text-white" />
+            </div>
+
+            <h2 className="text-3xl font-bold text-gray-800 mb-3">
+              Thank You
+            </h2>
+
+<p className="text-gray-600 text-lg">
+  Your message has been received.
+</p>
+
+            <button
+              onClick={() => setSuccess(false)}
+              className="mt-6 bg-lime-500 px-6 py-3 rounded-xl font-semibold text-black hover:bg-lime-600"
+            >
+              Close
+            </button>
+
+          </div>
+        </div>
+      )}
 
       {/* Decorative Background Shapes */}
       <div className="absolute inset-0 pointer-events-none">

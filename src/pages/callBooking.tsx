@@ -6,23 +6,22 @@ import { ChevronLeft, Phone, Calendar } from "lucide-react"
 import toast, { Toaster } from "react-hot-toast"
 
 export default function CallBooking() {
-  const [selectedDate, setSelectedDate] = useState<string>("")
-  const [selectedTime, setSelectedTime] = useState<string>("")
-  const [name, setName] = useState<string>("")
-  const [phone, setPhone] = useState<string>("")
-  const [email, setEmail] = useState<string>("")
-  const [message, setMessage] = useState<string>("Please confirm my booking")
+  const [selectedDate, setSelectedDate] = useState("")
+  const [selectedTime, setSelectedTime] = useState("")
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [email, setEmail] = useState("")
+  const [message, setMessage] = useState("Please confirm my booking")
   const [bookingStep, setBookingStep] = useState(1)
   const [loading, setLoading] = useState(false)
 
   const handleBooking = async () => {
-    if (!name || !phone || !email || !selectedDate || !selectedTime) return;
+    if (!name || !phone || !email || !selectedDate || !selectedTime) return
 
-    // ✅ Past date check
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10)
     if (selectedDate < today) {
-      toast.error("Booking date cannot be in the past!");
-      return;
+      toast.error("Booking date cannot be in the past!")
+      return
     }
 
     const bookingData = {
@@ -31,9 +30,9 @@ export default function CallBooking() {
       email,
       date: `${selectedDate}T${selectedTime}:00.000Z`,
       message,
-    };
+    }
 
-    setLoading(true);
+    setLoading(true)
     try {
       const response = await fetch(
         "https://technacallcanadabackend-production.up.railway.app/api/bookings",
@@ -44,29 +43,40 @@ export default function CallBooking() {
           },
           body: JSON.stringify(bookingData),
         }
-      );
-      const data = await response.json();
+      )
+      const data = await response.json()
 
       if (response.ok && data.success) {
-        toast.success("Booking created successfully!");
-        // Reset form
-        setBookingStep(1);
-        setSelectedDate("");
-        setSelectedTime("");
-        setName("");
-        setPhone("");
-        setEmail("");
-        setMessage("");
+        toast.success("Booking created successfully!")
+        setBookingStep(1)
+        setSelectedDate("")
+        setSelectedTime("")
+        setName("")
+        setPhone("")
+        setEmail("")
+        setMessage("")
       } else {
-        toast.error(data.message || "Something went wrong!");
+        toast.error(data.message || "Something went wrong!")
       }
     } catch (error) {
-      toast.error("Network error! Please try again.");
-      console.error(error);
+      toast.error("Network error! Please try again.")
+      console.error(error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  const timeSlots = [
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+  ]
 
   return (
     <main className="w-full min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -83,21 +93,21 @@ export default function CallBooking() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left - Booking Form */}
           <div className="lg:col-span-2">
             <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-2xl p-8 space-y-8">
-              {/* Step Indicator */}
               <div className="flex items-center justify-between mb-8">
-                {[1, 2, 3].map((step) => (
+                {[1, 2].map((step) => (
                   <div key={step} className="flex items-center">
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                        step <= bookingStep ? "bg-blue-600 text-white" : "bg-slate-700 text-slate-400"
+                        step <= bookingStep
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-700 text-slate-400"
                       }`}
                     >
                       {step}
                     </div>
-                    {step < 3 && (
+                    {step < 2 && (
                       <div
                         className={`w-12 h-1 mx-2 transition-all ${
                           step < bookingStep ? "bg-blue-600" : "bg-slate-700"
@@ -108,7 +118,6 @@ export default function CallBooking() {
                 ))}
               </div>
 
-              {/* Step 1: Enter Info */}
               {bookingStep >= 1 && (
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold text-white">Step 1: Your Info</h2>
@@ -142,7 +151,6 @@ export default function CallBooking() {
                 </div>
               )}
 
-              {/* Step 2: Select Date */}
               {bookingStep >= 2 && (
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
@@ -155,57 +163,54 @@ export default function CallBooking() {
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
+
                   {selectedDate && (
                     <p className="text-sm text-green-400 flex items-center space-x-2">
                       <span>✓</span>
                       <span>Date selected: {selectedDate}</span>
                     </p>
                   )}
+
+                  <div className="space-y-3">
+                    <h3 className="text-white font-semibold text-lg">Choose Time</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {timeSlots.map((time) => (
+                        <button
+                          key={time}
+                          onClick={() => setSelectedTime(time)}
+                          className={`px-3 py-2 text-sm font-medium rounded-xl transition-all ${
+                            selectedTime === time
+                              ? "bg-blue-600 text-white border-blue-500"
+                              : "bg-slate-700 border border-slate-600 hover:bg-blue-600/40 hover:border-blue-500"
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {/* Step 3: Select Time */}
-              {bookingStep >= 3 && (
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold text-white">Step 3: Choose Time</h2>
-                  <input
-                    type="time"
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                  {selectedTime && (
-                    <p className="text-sm text-green-400 flex items-center space-x-2">
-                      <span>✓</span>
-                      <span>Time selected: {selectedTime}</span>
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* Action Buttons */}
               <div className="flex gap-4 pt-8 border-t border-slate-700">
                 {bookingStep > 1 && (
                   <Button onClick={() => setBookingStep(bookingStep - 1)} variant="outline" className="flex-1">
                     Back
                   </Button>
                 )}
-                {bookingStep < 3 && (
+                {bookingStep < 2 && (
                   <Button
                     onClick={() => setBookingStep(bookingStep + 1)}
-                    disabled={
-                      (bookingStep === 1 && (!name || !phone || !email)) ||
-                      (bookingStep === 2 && !selectedDate)
-                    }
+                    disabled={bookingStep === 1 && (!name || !phone || !email)}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
                     Next
                   </Button>
                 )}
-                {bookingStep === 3 && (
+                {bookingStep === 2 && (
                   <Button
                     onClick={handleBooking}
-                    disabled={!selectedTime || loading}
+                    disabled={!selectedDate || !selectedTime || loading}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                   >
                     {loading ? "Booking..." : "Confirm Booking"}
@@ -215,7 +220,6 @@ export default function CallBooking() {
             </div>
           </div>
 
-          {/* Right - Summary Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-8 text-white space-y-6">
               <h3 className="text-2xl font-bold">Booking Summary</h3>
@@ -239,11 +243,6 @@ export default function CallBooking() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                   <p className="text-sm text-blue-100 mb-1">Date</p>
                   <p className="text-lg font-semibold">{selectedDate || "Not selected"}</p>
-                </div>
-
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <p className="text-sm text-blue-100 mb-1">Time</p>
-                  <p className="text-lg font-semibold">{selectedTime || "Not selected"}</p>
                 </div>
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
