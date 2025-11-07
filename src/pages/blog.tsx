@@ -52,6 +52,20 @@ export default function Blog() {
   const currentBlogs = blogs.slice(indexOfFirstBlog, indexOfLastBlog);
   const totalPages = Math.ceil(blogs.length / blogsPerPage);
 
+  // Clamp current page when data changes (e.g., after fetch)
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  // Smoothly scroll to list on page change for better UX
+  useEffect(() => {
+    if (!loading) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [currentPage, loading]);
+
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
@@ -195,43 +209,49 @@ export default function Blog() {
               </div>
 
               {/* Pagination Controls */}
-              {/* Pagination Controls */}
-<div className="flex items-center justify-center mt-12 gap-6">
-  {/* Previous Button */}
-  <button
-    onClick={goToPrevPage}
-    disabled={currentPage === 1}
-    className="w-12 h-12 flex items-center justify-center rounded-full bg-white text-gray-800 shadow-md hover:bg-gray-100 disabled:opacity-50 transition-all duration-300"
-  >
-    <span className="text-xl font-bold">&lt;</span>
-  </button>
+              <div className="mt-12 flex w-full items-center justify-center">
+                <nav
+                  className="inline-flex items-center gap-2 rounded-full bg-white/90 px-2 py-2 shadow-xl ring-1 ring-black/5 backdrop-blur"
+                  aria-label="Pagination"
+                >
+                  <button
+                    onClick={goToPrevPage}
+                    disabled={currentPage === 1}
+                    className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Previous Page"
+                  >
+                    <span className="text-lg leading-none">‹</span>
+                    <span className="hidden sm:inline">Prev</span>
+                  </button>
 
-  {/* Page Numbers */}
-  <div className="flex items-center gap-3">
-    {Array.from({ length: totalPages }, (_, i) => (
-      <button
-        key={i + 1}
-        onClick={() => setCurrentPage(i + 1)}
-        className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
-          currentPage === i + 1
-            ? "bg-blue-600 text-white shadow-lg"
-            : "bg-white text-gray-800 hover:bg-gray-100"
-        }`}
-      >
-        {i + 1}
-      </button>
-    ))}
-  </div>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages || 1 }, (_, i) => (
+                      <button
+                        key={i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        aria-current={currentPage === i + 1 ? "page" : undefined}
+                        className={`h-9 w-9 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+                          currentPage === i + 1
+                            ? "bg-blue-600 text-white shadow"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
 
-  {/* Next Button */}
-  <button
-    onClick={goToNextPage}
-    disabled={currentPage === totalPages}
-    className="w-12 h-12 flex items-center justify-center rounded-full bg-white text-gray-800 shadow-md hover:bg-gray-100 disabled:opacity-50 transition-all duration-300"
-  >
-    <span className="text-xl font-bold">&gt;</span>
-  </button>
-</div>
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Next Page"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="text-lg leading-none">›</span>
+                  </button>
+                </nav>
+              </div>
 
             </>
           )}
